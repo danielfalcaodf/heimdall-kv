@@ -1,0 +1,67 @@
+# Dependências e builds
+node_modules/
+dist/
+build/
+.next/
+.turbo/
+.nx/
+coverage/
+playwright-report/
+test-results/
+
+# Ambiente e segredos
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+*.crt
+*.cer
+*.jks
+*.pgpass
+*.npmrc
+!.npmrc.example
+
+# Dumps, backups e dados sensíveis
+*.dump
+*.sql
+*.sqlite
+*.db
+*.bak
+*.backup
+*.tar
+*.tar.gz
+*.7z
+*.rar
+*.zip
+
+# Logs
+*.log
+logs/
+
+# Sistema operacional / editor
+.DS_Store
+Thumbs.db
+.vscode/settings.json
+.idea/
+
+# Temporários
+.tmp/
+tmp/
+.cache/
+
+# Credenciais cloud
+.aws/
+.azure/
+.gcp/
+credentials.json
+service-account*.json
+
+# Dados reais — nunca versionar
+real-data/
+production-data/
+dumps/
+certificates/
+secrets/
