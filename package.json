@@ -1,0 +1,24 @@
+{
+  "name": "@heimdall-kv/workspace",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Heimdall KV — Base de Conhecimento com Vault e IA Contextual (open-source)",
+  "engines": {
+    "node": ">=22.0.0",
+    "pnpm": ">=10.0.0"
+  },
+  "scripts": {
+    "build": "nx run-many --target=build",
+    "test": "nx run-many --target=test",
+    "lint": "nx run-many --target=lint",
+    "format": "prettier --write \"**/*.{ts,tsx,json,md}\"",
+    "format:check": "prettier --check \"**/*.{ts,tsx,json,md}\""
+  },
+  "devDependencies": {
+    "@nx/workspace": "22.7.5",
+    "nx": "22.7.5",
+    "prettier": "3.8.3",
+    "typescript": "6.0.3"
+  },
+  "packageManager": "pnpm@10.11.0"
+}

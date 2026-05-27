@@ -1,0 +1,11 @@
+# .npmrc.example — copie para .npmrc e ajuste conforme necessário
+# Não versionar .npmrc com tokens ou credenciais reais
+
+# Para registro privado (opcional):
+# @heimdall-kv:registry=https://npm.pkg.github.com
+# //npm.pkg.github.com/:_authToken=SEU_TOKEN_AQUI
+
+# Para melhor performance com pnpm:
+shamefully-hoist=false
+strict-peer-dependencies=false
+auto-install-peers=true

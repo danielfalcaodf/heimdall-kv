@@ -35,10 +35,25 @@ Heimdall KV é uma plataforma web para documentação operacional organizada por
 
 ## Início rápido
 
-> ⚠️ Em construção. Stack ainda não inicializada.
+> ⚠️ Em construção. Apps web, API e worker ainda não criados (ST-022).
+
+**Pré-requisitos:** Node.js >= 22, pnpm >= 10
 
 ```bash
-# Em breve
+# Instalar dependências
+pnpm install
+
+# Ver projetos no workspace
+pnpm exec nx show projects
+
+# Build de todos os projetos
+pnpm build
+
+# Testes de todos os projetos
+pnpm test
+
+# Lint de todos os projetos
+pnpm lint
 ```
 
 ## Documentação
