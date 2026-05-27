@@ -65,3 +65,7 @@ production-data/
 dumps/
 certificates/
 secrets/
+
+# Next.js
+.next
+out

@@ -35,26 +35,37 @@ Heimdall KV é uma plataforma web para documentação operacional organizada por
 
 ## Início rápido
 
-> ⚠️ Em construção. Apps web, API e worker ainda não criados (ST-022).
-
 **Pré-requisitos:** Node.js >= 22, pnpm >= 10
 
 ```bash
 # Instalar dependências
 pnpm install
 
-# Ver projetos no workspace
+# Ver todos os projetos no workspace
 pnpm exec nx show projects
 
-# Build de todos os projetos
+# Desenvolvimento individual por app
+pnpm exec nx serve web      # Next.js web (porta 4200)
+pnpm exec nx serve api      # NestJS API (porta 3001)
+pnpm exec nx serve worker   # NestJS Worker (porta 3002)
+
+# Build por app
+pnpm exec nx build web
+pnpm exec nx build api
+pnpm exec nx build worker
+
+# Build de todos os apps
 pnpm build
 
-# Testes de todos os projetos
+# Testes
 pnpm test
 
-# Lint de todos os projetos
+# Lint
 pnpm lint
 ```
+
+> ⚠️ Copie os arquivos `.env.example` para `.env` (ou `.env.local` no web) antes de executar.  
+> **Nunca versionar arquivos `.env` com dados reais.**
 
 ## Documentação
 
