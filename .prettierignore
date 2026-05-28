@@ -1,5 +1,6 @@
-node_modules
-dist
-build
-.next
-coverage
+dist/
+.next/
+node_modules/
+coverage/
+pnpm-lock.yaml
+*.json

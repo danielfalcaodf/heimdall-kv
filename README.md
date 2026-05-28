@@ -33,6 +33,24 @@ Heimdall KV é uma plataforma web para documentação operacional organizada por
 - **Storage:** MinIO (local) / S3-compatible
 - **IA:** RAG sobre base interna autorizada
 
+## Validacao
+
+```bash
+# Verificar tipos TypeScript
+pnpm typecheck
+
+# Lint
+pnpm lint
+
+# Verificar formatacao
+pnpm format:check
+
+# Testes unitarios (sem servicos externos)
+pnpm test
+```
+
+> Os testes e2e (`api-e2e`, `worker-e2e`, `web-e2e`) dependem de servicos e sao executados separadamente.
+
 ## Início rápido
 
 **Pré-requisitos:** Node.js >= 22, pnpm >= 10

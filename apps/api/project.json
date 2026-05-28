@@ -74,6 +74,28 @@
           "buildTarget": "api:build:production"
         }
       }
+    },
+    "lint": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "eslint src --ext .ts,.tsx",
+        "cwd": "apps/api"
+      }
+    },
+    "typecheck": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "tsc --noEmit -p tsconfig.json",
+        "cwd": "apps/api"
+      }
+    },
+    "test": {
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/apps/api"],
+      "options": {
+        "jestConfig": "apps/api/jest.config.ts",
+        "passWithNoTests": false
+      }
     }
   },
   "tags": []

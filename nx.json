@@ -40,6 +40,10 @@
         "default"
       ],
       "cache": true
+    },
+    "typecheck": {
+      "inputs": ["default"],
+      "cache": true
     }
   },
   "plugins": [

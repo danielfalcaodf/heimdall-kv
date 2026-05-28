@@ -6,29 +6,29 @@ Heimdall KV é um **modular monolith** single-tenant por instalação. Uma inst�
 
 ## Stack
 
-| Camada | Tecnologia |
-|---|---|
-| Frontend | Next.js + TypeScript |
-| Backend | NestJS + TypeScript |
-| Worker | NestJS Worker (jobs assíncronos) |
-| Banco | PostgreSQL |
-| Cache / Fila | Redis + BullMQ |
-| Storage | MinIO / S3-compatible |
-| IA | RAG sobre base interna autorizada |
+| Camada       | Tecnologia                        |
+| ------------ | --------------------------------- |
+| Frontend     | Next.js + TypeScript              |
+| Backend      | NestJS + TypeScript               |
+| Worker       | NestJS Worker (jobs assíncronos)  |
+| Banco        | PostgreSQL                        |
+| Cache / Fila | Redis + BullMQ                    |
+| Storage      | MinIO / S3-compatible             |
+| IA           | RAG sobre base interna autorizada |
 
 ## Schemas PostgreSQL por domínio
 
-| Schema | Responsabilidade |
-|---|---|
-| `auth` | Usuários, sessões, tokens |
-| `org` | Organização, clientes, setores, projetos |
-| `kb` | Documentos, versões, tags |
-| `storage` | Arquivos, blobs, metadados |
-| `vault` | Segredos por projeto (permissão separada) |
-| `search` | Índices e configurações de busca |
-| `ai` | Embeddings, histórico de consultas |
-| `audit` | Logs de auditoria transversal |
-| `admin` | Configurações do sistema |
+| Schema    | Responsabilidade                          |
+| --------- | ----------------------------------------- |
+| `auth`    | Usuários, sessões, tokens                 |
+| `org`     | Organização, clientes, setores, projetos  |
+| `kb`      | Documentos, versões, tags                 |
+| `storage` | Arquivos, blobs, metadados                |
+| `vault`   | Segredos por projeto (permissão separada) |
+| `search`  | Índices e configurações de busca          |
+| `ai`      | Embeddings, histórico de consultas        |
+| `audit`   | Logs de auditoria transversal             |
+| `admin`   | Configurações do sistema                  |
 
 ## Princípios
 
