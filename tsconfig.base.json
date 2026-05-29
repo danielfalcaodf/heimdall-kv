@@ -14,7 +14,12 @@
     "skipLibCheck": true,
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
-    "paths": {}
+    "paths": {
+      "@heimdall/contracts": ["libs/contracts/src/index.ts"],
+      "@heimdall/queue": ["libs/queue/src/index.ts"],
+      "@heimdall/runtime-config": ["libs/runtime-config/src/index.ts"],
+      "@heimdall/storage": ["libs/storage/src/index.ts"]
+    }
   },
   "exclude": ["node_modules", "tmp"]
 }
