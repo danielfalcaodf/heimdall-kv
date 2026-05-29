@@ -11,7 +11,7 @@ Heimdall KV é um **modular monolith** single-tenant por instalação. Uma inst�
 | Frontend     | Next.js + TypeScript              |
 | Backend      | NestJS + TypeScript               |
 | Worker       | NestJS Worker (jobs assíncronos)  |
-| Banco        | PostgreSQL                        |
+| Banco        | PostgreSQL + Prisma               |
 | Cache / Fila | Redis + BullMQ                    |
 | Storage      | MinIO / S3-compatible             |
 | IA           | RAG sobre base interna autorizada |
@@ -29,6 +29,27 @@ Heimdall KV é um **modular monolith** single-tenant por instalação. Uma inst�
 | `ai`      | Embeddings, histórico de consultas        |
 | `audit`   | Logs de auditoria transversal             |
 | `admin`   | Configurações do sistema                  |
+
+O diretório `prisma/` contém a migration inicial que cria esses schemas.
+A V1 não usa `tenant_id` funcional nas tabelas; o isolamento enterprise futuro
+fica fora deste repositório open-source.
+
+## Bootstrap e health
+
+| Contrato      | Rota              | Finalidade                                                       |
+| ------------- | ----------------- | ---------------------------------------------------------------- |
+| Bootstrap     | `/api/bootstrap`  | Estado inicial do shell autenticado com dados sintéticos         |
+| Health        | `/api/health`     | Status seguro de API, PostgreSQL, Redis, worker, storage e filas |
+| Worker sanity | `/api/health/job` | Processamento mínimo de job sintético                            |
+
+As respostas de health não retornam hosts, credenciais, connection strings ou payloads brutos.
+
+## Bibliotecas locais
+
+- `libs/contracts`: contratos compartilhados entre web, API e worker.
+- `libs/runtime-config`: validação de variáveis obrigatórias sem imprimir valores.
+- `libs/queue`: contrato BullMQ e job sintético de sanidade.
+- `libs/storage`: adapter privado local para arquivos, sem URL pública fixa.
 
 ## Princípios
 

@@ -4,12 +4,12 @@ Base de Conhecimento open-source com Vault e IA Contextual.
 
 ## Pré-requisitos
 
-| Ferramenta   | Versão mínima | Notas                          |
-| ------------ | ------------- | ------------------------------ |
-| Node.js      | 22.x          | Recomendado via `nvm` ou `fnm` |
-| pnpm         | 10.x          | `npm install -g pnpm@10`       |
-| PostgreSQL   | 16+           | Para execução completa futura  |
-| Redis        | 7+            | Para filas/cache futuros       |
+| Ferramenta | Versão mínima | Notas                                        |
+| ---------- | ------------- | -------------------------------------------- |
+| Node.js    | 22.x          | Recomendado via `nvm` ou `fnm`               |
+| pnpm       | 10.x          | `npm install -g pnpm@10`                     |
+| PostgreSQL | 16+           | Necessario para migrations e health completo |
+| Redis      | 7+            | Necessario para BullMQ e health completo     |
 
 > Os serviços externos (PostgreSQL, Redis) ainda não são necessários para rodar lint/typecheck/testes unitários.
 
@@ -35,7 +35,8 @@ heimdall-kv/
 │   ├── api-e2e/     ← testes e2e da API
 │   ├── worker/      ← NestJS 11 (jobs assíncronos)
 │   └── worker-e2e/  ← testes e2e do worker
-├── packages/        ← bibliotecas compartilhadas (a criar)
+├── libs/            ← contratos, config, fila e storage compartilhados
+├── prisma/          ← schema Prisma e migrations de schemas de dominio
 ├── docs/            ← documentação do repo
 ├── nx.json          ← configuração Nx
 ├── pnpm-workspace.yaml
@@ -48,8 +49,8 @@ heimdall-kv/
 
 ```bash
 pnpm exec nx serve web      # Next.js web — http://localhost:4200
-pnpm exec nx serve api      # NestJS API  — http://localhost:3000
-pnpm exec nx serve worker   # NestJS Worker
+pnpm exec nx serve api      # NestJS API  — http://localhost:3001/api
+pnpm exec nx serve worker   # NestJS Worker — http://localhost:3002/api
 ```
 
 ### Servir todos os apps
@@ -90,23 +91,29 @@ pnpm format
 # Testes unitários (sem serviços externos)
 pnpm test
 # equivalente a: pnpm exec nx run-many -t test --all --passWithNoTests
+
+# Prisma
+pnpm prisma:validate
+pnpm prisma:generate
+pnpm db:migrate
 ```
 
 ## Variáveis de ambiente
 
 > ⚠️ **Nunca versionar arquivos `.env` com dados reais.** O CI bloqueia PRs que contenham `.env` real.
 
-Crie um arquivo `.env` na raiz e nas apps que precisarem. Use sempre placeholders nos exemplos:
+Crie `.env` nas apps que precisarem. Use sempre placeholders nos exemplos e mantenha valores reais fora do Git:
 
 ```dotenv
-# .env.example — copie para .env e substitua os valores
-DATABASE_URL=postgresql://<usuario>:<senha>@<host>:5432/<banco>
-REDIS_URL=redis://<host>:6379
+# apps/api/.env.example ou apps/worker/.env.example
+PORT=3001
+NODE_ENV=development
+DATABASE_URL=postgresql://<usuario>:<senha>@<host>:5432/<banco>?schema=public
+REDIS_HOST=<host>
+REDIS_PORT=6379
+HEALTH_QUEUE_NAME=system.health.sanity
+STORAGE_PRIVATE_ROOT=.local/storage/private
 JWT_SECRET=<segredo-minimo-32-chars>
-STORAGE_PROVIDER=minio
-STORAGE_ENDPOINT=http://<host>:9000
-STORAGE_ACCESS_KEY=<access-key>
-STORAGE_SECRET_KEY=<secret-key>
 ```
 
 > Substitua cada `<placeholder>` pelo valor real no seu `.env` local. Nunca commitar o `.env` preenchido.
@@ -130,3 +137,14 @@ pnpm lint && pnpm typecheck && pnpm test
 ```
 
 Veja `.github/workflows/ci.yml` para o workflow completo.
+
+## Rotas de sanidade
+
+| Camada | Rota              |
+| ------ | ----------------- |
+| Web    | `/app`            |
+| Web    | `/app/sem-acesso` |
+| Web    | `/admin/status`   |
+| API    | `/api/bootstrap`  |
+| API    | `/api/health`     |
+| Worker | `/api/health/job` |

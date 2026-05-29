@@ -39,12 +39,12 @@ Heimdall KV é uma plataforma web para documentação operacional organizada por
 
 O repositório usa GitHub Actions para garantir qualidade em cada PR e push para `main`.
 
-| Check       | Comando                                          |
-| ----------- | ------------------------------------------------ |
-| Lint        | `pnpm nx run-many -t lint --all`                 |
-| Typecheck   | `pnpm nx run-many -t typecheck --all`            |
-| Testes      | `pnpm nx run-many -t test --all --passWithNoTests` |
-| Segurança   | Verifica arquivos `.env` reais e padrões de segredos |
+| Check     | Comando                                              |
+| --------- | ---------------------------------------------------- |
+| Lint      | `pnpm nx run-many -t lint --all`                     |
+| Typecheck | `pnpm nx run-many -t typecheck --all`                |
+| Testes    | `pnpm nx run-many -t test --all --passWithNoTests`   |
+| Segurança | Verifica arquivos `.env` reais e padrões de segredos |
 
 > Pull requests só são mergeados com CI verde. Veja `.github/pull_request_template.md`.
 
@@ -62,6 +62,10 @@ pnpm format:check
 
 # Testes unitarios (sem servicos externos)
 pnpm test
+
+# Prisma
+pnpm prisma:validate
+pnpm prisma:generate
 ```
 
 > Os testes e2e (`api-e2e`, `worker-e2e`, `web-e2e`) dependem de servicos e sao executados separadamente.
@@ -95,10 +99,22 @@ pnpm test
 
 # Lint
 pnpm lint
+
+# Prisma / migrations
+pnpm prisma:validate
+pnpm prisma:generate
+pnpm db:migrate
 ```
 
 > ⚠️ Copie os arquivos `.env.example` para `.env` (ou `.env.local` no web) antes de executar.  
 > **Nunca versionar arquivos `.env` com dados reais.**
+
+## Bootstrap operacional
+
+- Web: `/app`, `/app/sem-acesso`, `/admin/status`
+- API: `/api/bootstrap`, `/api/health`
+- Worker: `/api/health/job`
+- Storage privado local: `.local/storage/private` via adapter, ignorado pelo Git
 
 ## Documentação
 
