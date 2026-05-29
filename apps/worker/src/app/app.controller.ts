@@ -9,4 +9,9 @@ export class AppController {
   getData() {
     return this.appService.getData();
   }
+
+  @Get('health/job')
+  getSanityJob() {
+    return this.appService.processSanityJob();
+  }
 }
