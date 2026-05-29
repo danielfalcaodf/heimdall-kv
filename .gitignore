@@ -51,6 +51,7 @@ Thumbs.db
 .tmp/
 tmp/
 .cache/
+.local/
 
 # Credenciais cloud
 .aws/
