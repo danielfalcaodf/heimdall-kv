@@ -2,6 +2,8 @@
 
 > Base de Conhecimento com Vault e IA Contextual — versão open-source.
 
+[![CI](https://github.com/danielfalcaodf/heimdall-kv/actions/workflows/ci.yml/badge.svg)](https://github.com/danielfalcaodf/heimdall-kv/actions/workflows/ci.yml)
+
 Heimdall KV é uma plataforma web para documentação operacional organizada por projeto, com vault integrado, busca por escopo e IA contextual sobre base autorizada.
 
 ## O que é
@@ -32,6 +34,19 @@ Heimdall KV é uma plataforma web para documentação operacional organizada por
 - **Cache/fila:** Redis + BullMQ
 - **Storage:** MinIO (local) / S3-compatible
 - **IA:** RAG sobre base interna autorizada
+
+## CI / Integração Contínua
+
+O repositório usa GitHub Actions para garantir qualidade em cada PR e push para `main`.
+
+| Check       | Comando                                          |
+| ----------- | ------------------------------------------------ |
+| Lint        | `pnpm nx run-many -t lint --all`                 |
+| Typecheck   | `pnpm nx run-many -t typecheck --all`            |
+| Testes      | `pnpm nx run-many -t test --all --passWithNoTests` |
+| Segurança   | Verifica arquivos `.env` reais e padrões de segredos |
+
+> Pull requests só são mergeados com CI verde. Veja `.github/pull_request_template.md`.
 
 ## Validacao
 
