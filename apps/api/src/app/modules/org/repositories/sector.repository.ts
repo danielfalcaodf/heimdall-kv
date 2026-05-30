@@ -62,4 +62,12 @@ export class SectorRepository {
     sector.deletedAt = now;
     return sector;
   }
+
+  restore(id: string): StoredSector | undefined {
+    const sector = this.sectors.get(id);
+    if (!sector || sector.status !== 'archived') return undefined;
+    sector.status = 'active';
+    sector.archivedAt = undefined;
+    return sector;
+  }
 }

@@ -64,4 +64,12 @@ export class ProjectRepository {
     project.deletedAt = now;
     return project;
   }
+
+  restore(id: string): StoredProject | undefined {
+    const project = this.projects.get(id);
+    if (!project || project.status !== 'archived') return undefined;
+    project.status = 'active';
+    project.archivedAt = undefined;
+    return project;
+  }
 }

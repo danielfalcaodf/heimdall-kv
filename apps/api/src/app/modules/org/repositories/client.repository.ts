@@ -51,4 +51,12 @@ export class ClientRepository {
     client.deletedAt = now;
     return client;
   }
+
+  restore(id: string): StoredClient | undefined {
+    const client = this.clients.get(id);
+    if (!client || client.status !== 'archived') return undefined;
+    client.status = 'active';
+    client.archivedAt = undefined;
+    return client;
+  }
 }

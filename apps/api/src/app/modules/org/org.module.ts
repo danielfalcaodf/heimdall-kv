@@ -3,10 +3,11 @@ import { OrgService } from './org.service';
 import { OrgController } from './org.controller';
 import { UserProfileService } from './user-profile.service';
 import { UserProfileController } from './user-profile.controller';
+import { DeletionPolicyService } from './deletion-policy.service';
 
 @Module({
-  providers: [OrgService, UserProfileService],
+  providers: [OrgService, UserProfileService, DeletionPolicyService],
   controllers: [OrgController, UserProfileController],
-  exports: [OrgService, UserProfileService],
+  exports: [OrgService, UserProfileService, DeletionPolicyService],
 })
 export class OrgModule {}
