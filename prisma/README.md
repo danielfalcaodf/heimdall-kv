@@ -24,6 +24,8 @@ ST-031 cria a base de autenticacao local:
 - `auth.invitations`: convites administrativos com hash do token, expiracao, aceite e invalidacao.
 - `auth.sessions`: sessoes locais com hash do token, expiracao e revogacao.
 
+ST-032 adiciona `password_hash` e `password_set_at` em `auth.users` para senha inicial local.
+
 Tokens e senhas nao devem ser persistidos em texto claro. As migrations usam apenas estrutura e constraints, sem dados reais.
 
 Comandos:

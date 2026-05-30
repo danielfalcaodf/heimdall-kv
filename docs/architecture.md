@@ -46,15 +46,16 @@ As respostas de health não retornam hosts, credenciais, connection strings ou p
 
 ## Autenticação local
 
-ST-031 adiciona a fundação de autenticação local no backend:
+ST-031/ST-032 adicionam a fundação de autenticação local no backend:
 
 - Modelo `auth.users` para usuários internos.
 - Modelo `auth.invitations` com hash do token de convite, expiração e invalidação.
 - Modelo `auth.sessions` com hash do token de sessão, expiração e revogação.
-- Serviço Nest `LocalAuthService` com regras de convite, início de fluxo local e sessão.
+- Senha inicial com hash `scrypt` e política mínima de 12 caracteres com letras e números.
+- Serviço Nest `LocalAuthService` com regras de convite, aceite, login local e sessão.
 - Controller `/api/auth/local/*` para contratos iniciais de convite e sessão.
 
-Tokens de convite e sessão são tratados como valores sensíveis: a persistência usa hash e os contextos seguros de auditoria não incluem token, senha ou segredo.
+Tokens de convite, tokens de sessão e senhas são tratados como valores sensíveis: a persistência usa hash e os contextos seguros de auditoria não incluem token, senha ou segredo.
 
 ## Bibliotecas locais
 

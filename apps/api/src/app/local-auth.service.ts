@@ -1,8 +1,10 @@
-import { randomBytes, randomUUID, createHash } from 'node:crypto';
+import { createHash, randomBytes, randomUUID, scryptSync, timingSafeEqual } from 'node:crypto';
 import { Injectable } from '@nestjs/common';
 import type {
+  AcceptLocalInvitationResponse,
   CreateLocalInvitationResponse,
   CreateLocalSessionResponse,
+  LocalLoginResponse,
   LocalAuthAuditContext,
   LocalInvitationStartResponse,
   LocalInvitationStatus,
@@ -19,6 +21,9 @@ const DEFAULT_INVITE_TTL_MINUTES = 7 * 24 * 60;
 const DEFAULT_SESSION_TTL_MINUTES = 8 * 60;
 const INVITE_PREFIX = 'inv';
 const SESSION_PREFIX = 'sess';
+const PASSWORD_HASH_PREFIX = 'scrypt';
+const PASSWORD_KEY_LENGTH = 64;
+const MIN_PASSWORD_LENGTH = 12;
 const VALID_ROLES = new Set<UserRole>(['viewer', 'editor', 'administrator', 'vault']);
 
 type LocalAuthErrorCode =
@@ -29,7 +34,9 @@ type LocalAuthErrorCode =
   | 'INVITATION_NOT_USABLE'
   | 'USER_NOT_FOUND'
   | 'SESSION_NOT_ALLOWED'
-  | 'SESSION_NOT_FOUND';
+  | 'SESSION_NOT_FOUND'
+  | 'PASSWORD_POLICY_FAILED'
+  | 'LOGIN_DENIED';
 
 interface StoredUser {
   id: string;
@@ -39,6 +46,8 @@ interface StoredUser {
   status: LocalUserStatus;
   createdAt: Date;
   activatedAt?: Date;
+  passwordHash?: string;
+  passwordSetAt?: Date;
 }
 
 interface StoredInvitation {
@@ -85,6 +94,24 @@ export interface StartInvitationResult extends LocalInvitationStartResponse {
   safeAudit: LocalAuthAuditContext;
 }
 
+export interface AcceptInvitationInput {
+  inviteToken: string;
+  password: string;
+}
+
+export interface AcceptInvitationResult extends AcceptLocalInvitationResponse {
+  safeAudit: LocalAuthAuditContext;
+}
+
+export interface LoginLocalInput {
+  email: string;
+  password: string;
+}
+
+export interface LoginLocalResult extends LocalLoginResponse {
+  safeAudit: LocalAuthAuditContext;
+}
+
 export interface CreateSessionInput {
   userId: string;
   ttlMinutes?: number;
@@ -102,6 +129,7 @@ export class LocalAuthError extends Error {
   constructor(
     readonly code: LocalAuthErrorCode,
     message: string,
+    readonly safeAudit?: LocalAuthAuditContext,
   ) {
     super(message);
     this.name = 'LocalAuthError';
@@ -114,6 +142,30 @@ function hashSecret(value: string): string {
 
 function createOpaqueToken(prefix: string): string {
   return `${prefix}_${randomBytes(32).toString('base64url')}`;
+}
+
+function createPasswordHash(password: string): string {
+  const salt = randomBytes(16).toString('base64url');
+  const hash = scryptSync(password, salt, PASSWORD_KEY_LENGTH).toString('base64url');
+
+  return `${PASSWORD_HASH_PREFIX}$${salt}$${hash}`;
+}
+
+function verifyPassword(password: string, passwordHash: string | undefined): boolean {
+  if (!passwordHash) {
+    return false;
+  }
+
+  const [prefix, salt, storedHash] = passwordHash.split('$');
+
+  if (prefix !== PASSWORD_HASH_PREFIX || !salt || !storedHash) {
+    return false;
+  }
+
+  const actual = scryptSync(password, salt, PASSWORD_KEY_LENGTH);
+  const expected = Buffer.from(storedHash, 'base64url');
+
+  return actual.length === expected.length && timingSafeEqual(actual, expected);
 }
 
 function normalizeEmail(email: string): string {
@@ -154,6 +206,17 @@ function audit(
     occurredAt: now.toISOString(),
     ...details,
   };
+}
+
+function assertPasswordPolicy(password: string): void {
+  if (
+    password.length < MIN_PASSWORD_LENGTH ||
+    !/[a-z]/.test(password) ||
+    !/[A-Z]/.test(password) ||
+    !/[0-9]/.test(password)
+  ) {
+    throw new LocalAuthError('PASSWORD_POLICY_FAILED', 'Senha nao atende a politica minima.');
+  }
 }
 
 @Injectable()
@@ -265,6 +328,99 @@ export class LocalAuthService {
     }
 
     return this.toInvitationView(invitation, now);
+  }
+
+  acceptInvitation(input: AcceptInvitationInput, now = new Date()): AcceptInvitationResult {
+    const invitation = this.findUsableInvitationByToken(input.inviteToken, now);
+    const user = this.users.get(invitation.userId);
+
+    if (!user) {
+      throw new LocalAuthError(
+        'USER_NOT_FOUND',
+        'Solicitacao invalida.',
+        audit('local_invitation_accept_failed', 'denied', now, {
+          invitationId: invitation.id,
+          reason: 'missing_user',
+        }),
+      );
+    }
+
+    try {
+      assertPasswordPolicy(input.password);
+    } catch (error) {
+      if (error instanceof LocalAuthError) {
+        throw new LocalAuthError(
+          error.code,
+          error.message,
+          audit('local_invitation_accept_failed', 'denied', now, {
+            userId: user.id,
+            invitationId: invitation.id,
+            reason: 'password_policy',
+          }),
+        );
+      }
+
+      throw error;
+    }
+
+    user.passwordHash = createPasswordHash(input.password);
+    user.passwordSetAt = now;
+    user.status = 'active';
+    user.activatedAt = user.activatedAt ?? now;
+    invitation.status = 'accepted';
+    invitation.acceptedAt = now;
+
+    const createdSession = this.createSession({ userId: user.id }, now);
+
+    return {
+      user: this.toUserView(user),
+      session: createdSession.session,
+      sessionToken: createdSession.sessionToken,
+      nextStep: 'authenticated',
+      safeAudit: audit('local_invitation_accepted', 'success', now, {
+        userId: user.id,
+        invitationId: invitation.id,
+        sessionId: createdSession.session.id,
+      }),
+    };
+  }
+
+  loginLocal(input: LoginLocalInput, now = new Date()): LoginLocalResult {
+    const denied = () =>
+      new LocalAuthError(
+        'LOGIN_DENIED',
+        'Credenciais invalidas.',
+        audit('local_login_failed', 'denied', now, {
+          reason: 'invalid_credentials',
+        }),
+      );
+
+    let email: string;
+
+    try {
+      email = normalizeEmail(input.email);
+    } catch {
+      throw denied();
+    }
+
+    const userId = this.usersByEmail.get(email);
+    const user = userId ? this.users.get(userId) : undefined;
+
+    if (!user || user.status !== 'active' || !verifyPassword(input.password, user.passwordHash)) {
+      throw denied();
+    }
+
+    const createdSession = this.createSession({ userId: user.id }, now);
+
+    return {
+      user: this.toUserView(user),
+      session: createdSession.session,
+      sessionToken: createdSession.sessionToken,
+      safeAudit: audit('local_login_succeeded', 'success', now, {
+        userId: user.id,
+        sessionId: createdSession.session.id,
+      }),
+    };
   }
 
   createSession(input: CreateSessionInput, now = new Date()): CreateSessionResult {

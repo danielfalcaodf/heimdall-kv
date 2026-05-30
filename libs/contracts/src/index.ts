@@ -72,6 +72,15 @@ export interface CreateLocalSessionResponse {
   sessionToken: string;
 }
 
+export interface AcceptLocalInvitationResponse extends CreateLocalSessionResponse {
+  user: LocalUserView;
+  nextStep: 'authenticated';
+}
+
+export interface LocalLoginResponse extends CreateLocalSessionResponse {
+  user: LocalUserView;
+}
+
 export interface LocalSessionValidationResponse {
   valid: boolean;
   session?: LocalSessionView;
@@ -83,7 +92,11 @@ export interface LocalAuthAuditContext {
     | 'local_user_created'
     | 'local_invitation_created'
     | 'local_invitation_started'
+    | 'local_invitation_accepted'
+    | 'local_invitation_accept_failed'
     | 'local_invitation_invalidated'
+    | 'local_login_succeeded'
+    | 'local_login_failed'
     | 'local_session_created'
     | 'local_session_revoked'
     | 'local_session_validation_failed';

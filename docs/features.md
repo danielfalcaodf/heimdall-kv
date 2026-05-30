@@ -12,8 +12,9 @@
 
 - Login local com e-mail e senha.
 - Convites administrativos com expiração e invalidação.
+- Aceite de convite com definição obrigatória de senha inicial.
 - Sessão local com expiração e encerramento.
-- Tokens persistidos apenas em hash.
+- Tokens e senhas persistidos apenas em hash.
 - Controle de acesso por projeto.
 
 ### Vault

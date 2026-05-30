@@ -9,7 +9,9 @@ import {
   Post,
 } from '@nestjs/common';
 import type {
+  AcceptLocalInvitationResponse,
   CreateLocalInvitationResponse,
+  LocalLoginResponse,
   LocalInvitationStartResponse,
   LocalInvitationView,
   LocalSessionValidationResponse,
@@ -27,6 +29,16 @@ interface CreateInvitationBody {
 
 interface ValidateSessionBody {
   sessionToken?: string;
+}
+
+interface AcceptInvitationBody {
+  inviteToken?: string;
+  password?: string;
+}
+
+interface LoginLocalBody {
+  email?: string;
+  password?: string;
 }
 
 function toHttpError(error: unknown): never {
@@ -83,6 +95,43 @@ export class LocalAuthController {
   invalidateInvitation(@Param('id') id: string): LocalInvitationView {
     try {
       return this.localAuth.invalidateInvitation(id);
+    } catch (error) {
+      return toHttpError(error);
+    }
+  }
+
+  @Post('invitations/accept')
+  acceptInvitation(@Body() body: AcceptInvitationBody): AcceptLocalInvitationResponse {
+    try {
+      const accepted = this.localAuth.acceptInvitation({
+        inviteToken: body.inviteToken ?? '',
+        password: body.password ?? '',
+      });
+
+      return {
+        user: accepted.user,
+        session: accepted.session,
+        sessionToken: accepted.sessionToken,
+        nextStep: accepted.nextStep,
+      };
+    } catch (error) {
+      return toHttpError(error);
+    }
+  }
+
+  @Post('sessions/login')
+  loginLocal(@Body() body: LoginLocalBody): LocalLoginResponse {
+    try {
+      const login = this.localAuth.loginLocal({
+        email: body.email ?? '',
+        password: body.password ?? '',
+      });
+
+      return {
+        user: login.user,
+        session: login.session,
+        sessionToken: login.sessionToken,
+      };
     } catch (error) {
       return toHttpError(error);
     }

@@ -67,6 +67,134 @@ describe('LocalAuthService', () => {
     );
   });
 
+  it('accepts an invitation, stores only a password hash and creates a local session', () => {
+    const created = service.createInvitation(
+      {
+        email: 'new-user@example.test',
+        displayName: 'New User',
+      },
+      baseNow,
+    );
+    const passphrase = 'SenhaInicial123';
+
+    const accepted = service.acceptInvitation(
+      {
+        inviteToken: created.inviteToken,
+        password: passphrase,
+      },
+      baseNow,
+    );
+
+    expect(accepted.user).toMatchObject({
+      email: 'new-user@example.test',
+      status: 'active',
+    });
+    expect(accepted.nextStep).toBe('authenticated');
+    expect(accepted.session.status).toBe('active');
+    expect(service.validateSessionByToken(accepted.sessionToken, baseNow).valid).toBe(true);
+    expect(service.getInvitation(created.invitation.id, baseNow).status).toBe('accepted');
+    expect(JSON.stringify(accepted)).not.toContain(passphrase);
+    expect(JSON.stringify(accepted.safeAudit)).not.toMatch(/token|password|secret|SenhaInicial/i);
+  });
+
+  it('rejects reused, expired and invalid invitation acceptance with generic safe errors', () => {
+    const reusable = service.createInvitation({ email: 'used@example.test' }, baseNow);
+    service.acceptInvitation(
+      {
+        inviteToken: reusable.inviteToken,
+        password: 'SenhaInicial123',
+      },
+      baseNow,
+    );
+
+    expect(() =>
+      service.acceptInvitation(
+        {
+          inviteToken: reusable.inviteToken,
+          password: 'OutraSenha123',
+        },
+        baseNow,
+      ),
+    ).toThrow(LocalAuthError);
+
+    const expired = service.createInvitation(
+      {
+        email: 'accept-expired@example.test',
+        ttlMinutes: 1,
+      },
+      baseNow,
+    );
+    expect(() =>
+      service.acceptInvitation(
+        {
+          inviteToken: expired.inviteToken,
+          password: 'SenhaInicial123',
+        },
+        new Date('2026-05-30T12:02:00.000Z'),
+      ),
+    ).toThrow(LocalAuthError);
+
+    expect(() =>
+      service.acceptInvitation(
+        {
+          inviteToken: 'inv_invalid',
+          password: 'SenhaInicial123',
+        },
+        baseNow,
+      ),
+    ).toThrow(LocalAuthError);
+  });
+
+  it('enforces the V1 minimum password policy before accepting an invitation', () => {
+    const created = service.createInvitation({ email: 'weak-password@example.test' }, baseNow);
+
+    expect(() =>
+      service.acceptInvitation(
+        {
+          inviteToken: created.inviteToken,
+          password: 'curta',
+        },
+        baseNow,
+      ),
+    ).toThrow(LocalAuthError);
+    expect(service.getInvitation(created.invitation.id, baseNow).status).toBe('pending');
+  });
+
+  it('logs in active local users without revealing whether credentials failed by email or password', () => {
+    const created = service.createInvitation({ email: 'login@example.test' }, baseNow);
+    service.acceptInvitation(
+      {
+        inviteToken: created.inviteToken,
+        password: 'SenhaInicial123',
+      },
+      baseNow,
+    );
+
+    const login = service.loginLocal(
+      {
+        email: 'LOGIN@example.test',
+        password: 'SenhaInicial123',
+      },
+      baseNow,
+    );
+
+    expect(login.user.email).toBe('login@example.test');
+    expect(login.session.status).toBe('active');
+    expect(JSON.stringify(login)).not.toContain('SenhaInicial123');
+
+    const wrongPassword = captureAuthError(() =>
+      service.loginLocal({ email: 'login@example.test', password: 'SenhaErrada123' }, baseNow),
+    );
+    const unknownEmail = captureAuthError(() =>
+      service.loginLocal({ email: 'missing@example.test', password: 'SenhaErrada123' }, baseNow),
+    );
+
+    expect(wrongPassword.code).toBe('LOGIN_DENIED');
+    expect(unknownEmail.code).toBe('LOGIN_DENIED');
+    expect(wrongPassword.message).toBe(unknownEmail.message);
+    expect(JSON.stringify(wrongPassword.safeAudit)).not.toMatch(/SenhaErrada|password|secret/i);
+  });
+
   it('creates, validates and revokes local sessions for active users', () => {
     const user = service.createLocalUser(
       {
@@ -152,3 +280,15 @@ describe('LocalAuthService', () => {
     );
   });
 });
+
+function captureAuthError(action: () => unknown): LocalAuthError {
+  try {
+    action();
+  } catch (error) {
+    if (error instanceof LocalAuthError) {
+      return error;
+    }
+  }
+
+  throw new Error('Expected LocalAuthError');
+}
