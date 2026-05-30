@@ -64,7 +64,8 @@
       ],
       "options": {
         "buildTarget": "worker:build",
-        "runBuildTargetDependencies": false
+        "runBuildTargetDependencies": false,
+        "inspect": false
       },
       "configurations": {
         "development": {
@@ -91,7 +92,9 @@
     },
     "test": {
       "executor": "@nx/jest:jest",
-      "outputs": ["{workspaceRoot}/coverage/apps/worker"],
+      "outputs": [
+        "{workspaceRoot}/coverage/apps/worker"
+      ],
       "options": {
         "jestConfig": "apps/worker/jest.config.ts",
         "passWithNoTests": false

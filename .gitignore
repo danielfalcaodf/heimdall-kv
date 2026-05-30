@@ -12,6 +12,8 @@ test-results/
 # Ambiente e segredos
 .env
 .env.*
+.env.local
+.env.*.local
 !.env.example
 !.env.docker.example
 !.env.test.example

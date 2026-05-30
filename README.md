@@ -94,11 +94,22 @@ docker compose down -v
 
 ### Configurar variáveis de ambiente
 
+As variáveis estão centralizadas no `.env.example` da raiz do monorepo. O Nx carrega automaticamente o `.env` da raiz para todos os apps.
+
 ```bash
-cp .env.docker.example apps/api/.env
-cp .env.docker.example apps/worker/.env
-# Edite os arquivos e substitua TROQUE_AQUI por senhas seguras
+# Copiar template da raiz e preencher com valores reais
+cp .env.example .env
+# Edite .env e substitua TROQUE_AQUI pelas senhas/chaves reais
+
+# Os apps/api e apps/worker têm .env mínimos (apenas PORT)
+cp apps/api/.env.example apps/api/.env
+cp apps/worker/.env.example apps/worker/.env
 ```
+
+> Para rodar com Docker Compose, use `.env.docker.example` como base:
+> ```bash
+> cp .env.docker.example .env
+> ```
 
 ### Serviços opcionais (dev-tools)
 
@@ -133,6 +144,9 @@ pnpm exec nx show projects
 pnpm exec nx serve web      # Next.js web (porta 4200)
 pnpm exec nx serve api      # NestJS API (porta 3001)
 pnpm exec nx serve worker   # NestJS Worker (porta 3002)
+
+# Desenvolvimento completo (web + api + worker em paralelo)
+pnpm dev
 
 # Build por app
 pnpm exec nx build web

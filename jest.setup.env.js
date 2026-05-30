@@ -3,8 +3,14 @@
 const fs = require('fs');
 const path = require('path');
 
-const envFile = path.join(__dirname, '.env.test');
-if (fs.existsSync(envFile)) {
+const envFiles = ['.env.jest', '.env.test'];
+
+for (const file of envFiles) {
+  const envFile = path.join(__dirname, file);
+  if (!fs.existsSync(envFile)) {
+    continue;
+  }
+
   const lines = fs.readFileSync(envFile, 'utf8').split('\n');
   for (const line of lines) {
     const match = line.match(/^([A-Z_][A-Z0-9_]*)=(.+)$/);
@@ -12,4 +18,6 @@ if (fs.existsSync(envFile)) {
       process.env[match[1]] = match[2];
     }
   }
+
+  break;
 }
