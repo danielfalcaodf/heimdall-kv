@@ -1,5 +1,10 @@
 version: 2
 
 paths-ignored:
+  - .env.example
   - .env.docker.example
   - .env.test.example
+  - .npmrc.example
+  - apps/api/.env.example
+  - apps/web/.env.example
+  - apps/worker/.env.example
