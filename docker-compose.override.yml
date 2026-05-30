@@ -1,0 +1,30 @@
+# docker-compose.override.yml — Ferramentas opcionais de desenvolvimento
+# Uso: docker compose --profile dev-tools up -d
+# pgAdmin:          http://localhost:5050
+# Redis Commander:  http://localhost:8081
+
+services:
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    restart: unless-stopped
+    profiles:
+      - dev-tools
+    ports:
+      - "5050:80"
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@local.dev
+      PGADMIN_DEFAULT_PASSWORD: TROQUE_AQUI
+    depends_on:
+      - postgres
+
+  redis-commander:
+    image: rediscommander/commander:latest
+    restart: unless-stopped
+    profiles:
+      - dev-tools
+    ports:
+      - "8081:8081"
+    environment:
+      REDIS_HOSTS: local:redis:6379
+    depends_on:
+      - redis

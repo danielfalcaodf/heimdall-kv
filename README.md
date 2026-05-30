@@ -70,6 +70,54 @@ pnpm prisma:generate
 
 > Os testes e2e (`api-e2e`, `worker-e2e`, `web-e2e`) dependem de servicos e sao executados separadamente.
 
+## Rodando com Docker
+
+O projeto inclui um `docker-compose.yml` com PostgreSQL, Redis e MinIO prontos para desenvolvimento local.
+
+### Pré-requisitos
+
+- Docker 24+ com Docker Compose v2
+- `docker compose version` deve retornar v2.x
+
+### Subindo os serviços
+
+```bash
+# Subir serviços essenciais
+docker compose up -d
+
+# Verificar saúde dos containers
+docker compose ps
+
+# Parar e remover volumes (reset completo)
+docker compose down -v
+```
+
+### Configurar variáveis de ambiente
+
+```bash
+cp .env.docker.example apps/api/.env
+cp .env.docker.example apps/worker/.env
+# Edite os arquivos e substitua TROQUE_AQUI por senhas seguras
+```
+
+### Serviços opcionais (dev-tools)
+
+```bash
+# Sobe pgAdmin (http://localhost:5050) e Redis Commander (http://localhost:8081)
+docker compose --profile dev-tools up -d
+```
+
+### Portas locais
+
+| Serviço         | Porta |
+| --------------- | ----- |
+| PostgreSQL      | 5432  |
+| Redis           | 6379  |
+| MinIO API       | 9000  |
+| MinIO Console   | 9001  |
+| pgAdmin         | 5050  |
+| Redis Commander | 8081  |
+
 ## Início rápido
 
 **Pré-requisitos:** Node.js >= 22, pnpm >= 10
