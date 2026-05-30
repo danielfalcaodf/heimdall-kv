@@ -1,5 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import type { OrgEntityStatus } from '@heimdall/contracts';
 import { ClientRepository, StoredClient } from './repositories/client.repository';
 import { SectorRepository, StoredSector } from './repositories/sector.repository';
 import { ProjectRepository, StoredProject } from './repositories/project.repository';

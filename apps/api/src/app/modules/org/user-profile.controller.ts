@@ -80,7 +80,7 @@ export class UserProfileController {
     if (userId) {
       return this.userProfileService.listBindingsByUser(userId);
     }
-    return [];
+    return this.userProfileService.listBindings();
   }
 
   @Patch('bindings/:id/revoke')

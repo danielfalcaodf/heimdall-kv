@@ -13,9 +13,9 @@ async function fetchJson<T>(path: string): Promise<T | null> {
 }
 
 export async function getPermissions(): Promise<OrgUserBindingView[]> {
-  return (await fetchJson<OrgUserBindingView[]>('/org/vinculos')) ?? [];
+  return (await fetchJson<OrgUserBindingView[]>('/org/bindings')) ?? [];
 }
 
 export async function getAuditEvents(): Promise<AuditEventView[]> {
-  return (await fetchJson<AuditEventView[]>('/audit/eventos')) ?? [];
+  return (await fetchJson<AuditEventView[]>('/audit/events')) ?? [];
 }

@@ -54,6 +54,12 @@ export class UserBindingRepository {
     );
   }
 
+  findAll(includeRevoked = false): StoredUserBinding[] {
+    return Array.from(this.bindings.values()).filter(
+      (b) => includeRevoked || b.revokedAt === undefined,
+    );
+  }
+
   revoke(id: string, now: Date): StoredUserBinding | undefined {
     const binding = this.bindings.get(id);
     if (!binding || binding.revokedAt) return undefined;

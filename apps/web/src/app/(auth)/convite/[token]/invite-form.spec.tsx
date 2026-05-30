@@ -3,6 +3,9 @@ import ConvitePage from './invite-form';
 import * as authApi from '../../../lib/auth-api';
 
 jest.mock('../../../lib/auth-api');
+jest.mock('next/navigation', () => ({
+  useRouter: () => ({ push: jest.fn() }),
+}));
 
 const mockValidate = authApi.validateInviteToken as jest.MockedFunction<typeof authApi.validateInviteToken>;
 const mockAccept = authApi.acceptInvite as jest.MockedFunction<typeof authApi.acceptInvite>;

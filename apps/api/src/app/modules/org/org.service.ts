@@ -52,10 +52,14 @@ export class OrgService {
   private readonly sectors: SectorRepository;
   private readonly projects: ProjectRepository;
 
-  constructor() {
-    this.clients = new ClientRepository();
-    this.sectors = new SectorRepository();
-    this.projects = new ProjectRepository();
+  constructor(
+    clients?: ClientRepository,
+    sectors?: SectorRepository,
+    projects?: ProjectRepository,
+  ) {
+    this.clients = clients ?? new ClientRepository();
+    this.sectors = sectors ?? new SectorRepository();
+    this.projects = projects ?? new ProjectRepository();
   }
 
   // --- Clients ---

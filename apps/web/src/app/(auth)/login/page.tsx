@@ -1,9 +1,11 @@
 'use client';
 
 import { useState, useTransition } from 'react';
+import { useRouter } from 'next/navigation';
 import { loginLocal } from '../../lib/auth-api';
 
 export default function LoginPage() {
+  const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
@@ -16,7 +18,7 @@ export default function LoginPage() {
     startTransition(async () => {
       const result = await loginLocal(email, password);
       if (result.ok) {
-        window.location.href = '/app';
+        router.push('/app');
       } else {
         setError(result.error ?? 'Erro desconhecido.');
       }

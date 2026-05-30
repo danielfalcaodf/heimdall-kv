@@ -86,6 +86,12 @@ describe('UserProfileService', () => {
       expect(service.listBindingsByProject(projectId)).toHaveLength(2);
     });
 
+    it('lists all active bindings', () => {
+      service.createBinding({ userId: 'u1', role: 'viewer', projectId: 'p1' }, now);
+      service.createBinding({ userId: 'u2', role: 'editor', projectId: 'p2' }, now);
+      expect(service.listBindings()).toHaveLength(2);
+    });
+
     it('revokes a binding', () => {
       const binding = service.createBinding({ userId, role: 'viewer', projectId }, now);
       service.revokeBinding(binding.id, now);

@@ -1,4 +1,4 @@
-import { BadRequestException, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, UnauthorizedException } from '@nestjs/common';
 import { AuthController } from './auth.controller';
 import { LocalAuthService } from './local-auth.service';
 import { AuditService } from '../audit/audit.service';

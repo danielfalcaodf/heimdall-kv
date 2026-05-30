@@ -38,9 +38,12 @@ export class UserProfileService {
   private readonly profiles: UserProfileRepository;
   private readonly bindings: UserBindingRepository;
 
-  constructor() {
-    this.profiles = new UserProfileRepository();
-    this.bindings = new UserBindingRepository();
+  constructor(
+    profiles?: UserProfileRepository,
+    bindings?: UserBindingRepository,
+  ) {
+    this.profiles = profiles ?? new UserProfileRepository();
+    this.bindings = bindings ?? new UserBindingRepository();
   }
 
   // --- Profiles ---
@@ -95,6 +98,10 @@ export class UserProfileService {
 
   listBindingsByProject(projectId: string): OrgUserBindingView[] {
     return this.bindings.findByProject(projectId).map((b) => this.toBindingView(b));
+  }
+
+  listBindings(): OrgUserBindingView[] {
+    return this.bindings.findAll().map((b) => this.toBindingView(b));
   }
 
   revokeBinding(id: string, now: Date): OrgUserBindingView {

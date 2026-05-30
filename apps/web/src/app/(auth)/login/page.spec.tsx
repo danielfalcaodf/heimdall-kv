@@ -3,6 +3,9 @@ import LoginPage from './page';
 import * as authApi from '../../lib/auth-api';
 
 jest.mock('../../lib/auth-api');
+jest.mock('next/navigation', () => ({
+  useRouter: () => ({ push: jest.fn() }),
+}));
 
 const mockLoginLocal = authApi.loginLocal as jest.MockedFunction<typeof authApi.loginLocal>;
 

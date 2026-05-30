@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState, useTransition } from 'react';
+import { useRouter } from 'next/navigation';
 import { validateInviteToken, acceptInvite } from '../../../lib/auth-api';
 
 interface Props {
@@ -8,6 +9,7 @@ interface Props {
 }
 
 function InviteForm({ token }: Props) {
+  const router = useRouter();
   const [password, setPassword] = useState('');
   const [confirm, setConfirm] = useState('');
   const [formError, setFormError] = useState<string | null>(null);
@@ -29,7 +31,7 @@ function InviteForm({ token }: Props) {
     startTransition(async () => {
       const result = await acceptInvite(token, password);
       if (result.ok) {
-        window.location.href = '/app';
+        router.push('/app');
       } else {
         setFormError(result.error ?? 'Erro ao ativar conta.');
       }
