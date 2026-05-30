@@ -108,6 +108,68 @@ export interface LocalAuthAuditContext {
   occurredAt: string;
 }
 
+// --- Org domain ---
+
+export type OrgEntityStatus = 'active' | 'archived' | 'deleted';
+
+export interface OrgClientView {
+  id: string;
+  name: string;
+  status: OrgEntityStatus;
+  createdAt: string;
+  archivedAt?: string;
+}
+
+export interface OrgSectorView {
+  id: string;
+  clientId: string;
+  name: string;
+  status: OrgEntityStatus;
+  createdAt: string;
+  archivedAt?: string;
+}
+
+export interface OrgProjectView {
+  id: string;
+  clientId: string;
+  sectorId?: string;
+  name: string;
+  status: OrgEntityStatus;
+  createdAt: string;
+  archivedAt?: string;
+}
+
+export interface CreateOrgClientInput {
+  name: string;
+}
+
+export interface CreateOrgSectorInput {
+  clientId: string;
+  name: string;
+}
+
+export interface CreateOrgProjectInput {
+  clientId: string;
+  sectorId?: string;
+  name: string;
+}
+
+export interface OrgAuditContext {
+  action:
+    | 'org_client_created'
+    | 'org_client_archived'
+    | 'org_sector_created'
+    | 'org_sector_archived'
+    | 'org_project_created'
+    | 'org_project_archived';
+  result: 'success' | 'denied';
+  resourceId: string;
+  actorUserId?: string;
+  occurredAt: string;
+}
+
+// --- ActiveScope / Bootstrap ---
+
 export interface ActiveScope {
   clientId: string;
   clientName: string;

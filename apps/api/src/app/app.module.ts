@@ -6,9 +6,10 @@ import { LocalAuthController } from './local-auth.controller';
 import { ConfigModule } from './modules/config/config.module';
 import { HealthModule } from './modules/health/health.module';
 import { AuthModule } from './modules/auth/auth.module';
+import { OrgModule } from './modules/org/org.module';
 
 @Module({
-  imports: [ConfigModule, HealthModule, AuthModule],
+  imports: [ConfigModule, HealthModule, AuthModule, OrgModule],
   controllers: [AppController, LocalAuthController],
   providers: [AppService, DependencyHealthService],
 })
