@@ -1,5 +1,6 @@
-import { getOrgUsers } from '../../lib/org-api';
+import { getOrgBindings, getOrgUsers } from '../../lib/org-api';
 import type { OrgUserProfileView } from '@heimdall/contracts';
+import { UserAdminActions } from './user-actions';
 
 function StatusBadge({ status }: { status: string }) {
   const labels: Record<string, string> = {
@@ -53,7 +54,7 @@ function UserTable({ users }: { users: OrgUserProfileView[] }) {
 }
 
 export default async function AdminUsuariosPage() {
-  const users = await getOrgUsers();
+  const [users, bindings] = await Promise.all([getOrgUsers(), getOrgBindings()]);
 
   return (
     <main className="admin-page">
@@ -61,6 +62,8 @@ export default async function AdminUsuariosPage() {
         <h1>Usuários e perfis</h1>
         <p>Gerencie usuários, papéis e vínculos organizacionais.</p>
       </header>
+
+      <UserAdminActions bindings={bindings} users={users} />
 
       <section aria-labelledby="users-heading" className="admin-section">
         <h2 id="users-heading">Perfis de usuário</h2>

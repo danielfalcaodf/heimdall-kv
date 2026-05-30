@@ -231,6 +231,194 @@ select {
   font-weight: 600;
 }
 
+.admin-page,
+.auth-page {
+  min-height: 100vh;
+  padding: 28px;
+  display: grid;
+  gap: 18px;
+  align-content: start;
+}
+
+.auth-page {
+  place-items: center;
+}
+
+.auth-card,
+.admin-section {
+  background: #ffffff;
+  border: 1px solid #d8dee4;
+  border-radius: 8px;
+  padding: 18px;
+  display: grid;
+  gap: 14px;
+}
+
+.auth-card {
+  width: min(100%, 420px);
+}
+
+.admin-header,
+.auth-header,
+.auth-footer {
+  display: grid;
+  gap: 6px;
+}
+
+.admin-header h1,
+.admin-section h2,
+.auth-header h1 {
+  margin: 0;
+}
+
+.admin-header p,
+.auth-header p,
+.auth-footer,
+.empty-state,
+.hint {
+  color: #61707d;
+}
+
+.admin-action-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 12px;
+}
+
+.admin-form,
+.auth-card form {
+  display: grid;
+  gap: 10px;
+}
+
+.admin-form {
+  border: 1px solid #d8dee4;
+  border-radius: 8px;
+  padding: 12px;
+  align-content: start;
+}
+
+.field {
+  display: grid;
+  gap: 6px;
+}
+
+.checkbox-field,
+.button-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+input,
+select {
+  min-height: 38px;
+  border: 1px solid #b8c3cc;
+  border-radius: 6px;
+  padding: 7px 9px;
+  background: #ffffff;
+}
+
+.btn-primary,
+.btn-secondary,
+.btn-danger,
+.btn-danger-outline {
+  border-radius: 6px;
+  border: 1px solid transparent;
+  min-height: 38px;
+  padding: 7px 11px;
+  font-weight: 600;
+}
+
+.btn-primary {
+  background: #176b61;
+  color: #ffffff;
+}
+
+.btn-secondary {
+  background: #eef1f4;
+  border-color: #c7d0d9;
+  color: #172026;
+}
+
+.btn-danger,
+.btn-danger-outline {
+  border-color: #b42318;
+}
+
+.btn-danger {
+  background: #b42318;
+  color: #ffffff;
+}
+
+.btn-danger-outline {
+  background: #ffffff;
+  color: #b42318;
+}
+
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #ffffff;
+}
+
+.admin-table th,
+.admin-table td {
+  border-bottom: 1px solid #d8dee4;
+  padding: 10px;
+  text-align: left;
+  vertical-align: top;
+}
+
+.status-badge,
+.role-badge,
+.result-badge {
+  border-radius: 999px;
+  padding: 4px 8px;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.status-active,
+.role-admin,
+.vault-yes,
+.result-success,
+.success-message {
+  color: #0b6b43;
+}
+
+.status-active,
+.result-success {
+  background: #dff5ea;
+}
+
+.status-archived,
+.status-suspended,
+.role-editor {
+  background: #fff1c7;
+  color: #815b00;
+}
+
+.status-deleted,
+.status-removed,
+.result-denied,
+.result-error,
+.vault-no {
+  color: #9b1c16;
+}
+
+.status-deleted,
+.status-removed,
+.result-denied,
+.result-error {
+  background: #ffe1df;
+}
+
+.auth-error {
+  color: #9b1c16;
+}
+
 @media (max-width: 820px) {
   .app-shell {
     grid-template-columns: 1fr;

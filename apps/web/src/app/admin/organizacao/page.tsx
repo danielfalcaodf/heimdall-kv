@@ -1,5 +1,6 @@
 import { getOrgClients, getOrgSectors, getOrgProjects } from '../../lib/org-api';
 import type { OrgClientView, OrgSectorView, OrgProjectView } from '@heimdall/contracts';
+import { OrganizationActions } from './organization-actions';
 
 function StatusBadge({ status }: { status: string }) {
   const label = status === 'active' ? 'Ativo' : status === 'archived' ? 'Arquivado' : 'Excluído';
@@ -106,6 +107,8 @@ export default async function AdminOrganizacaoPage() {
         <h1>Estrutura organizacional</h1>
         <p>Gerencie clientes, setores e projetos da plataforma.</p>
       </header>
+
+      <OrganizationActions clients={clients} sectors={sectors} />
 
       <section aria-labelledby="clients-heading" className="admin-section">
         <h2 id="clients-heading">Clientes</h2>
