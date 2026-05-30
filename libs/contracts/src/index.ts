@@ -108,6 +108,36 @@ export interface LocalAuthAuditContext {
   occurredAt: string;
 }
 
+// --- Audit domain ---
+
+export type AuditResult = 'success' | 'denied' | 'error';
+
+export type AuditScopeType = 'client' | 'sector' | 'project' | 'global';
+
+export interface AuditEventView {
+  id: string;
+  actorUserId: string;
+  action: string;
+  resourceType: string;
+  resourceId?: string;
+  scopeType?: AuditScopeType;
+  scopeId?: string;
+  result: AuditResult;
+  ipAddress?: string;
+  createdAt: string;
+}
+
+export interface CreateAuditEventInput {
+  actorUserId: string;
+  action: string;
+  resourceType: string;
+  resourceId?: string;
+  scopeType?: AuditScopeType;
+  scopeId?: string;
+  result: AuditResult;
+  ipAddress?: string;
+}
+
 // --- Org domain ---
 
 export type OrgEntityStatus = 'active' | 'archived' | 'deleted';

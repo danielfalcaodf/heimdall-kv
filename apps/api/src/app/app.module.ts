@@ -7,9 +7,10 @@ import { ConfigModule } from './modules/config/config.module';
 import { HealthModule } from './modules/health/health.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { OrgModule } from './modules/org/org.module';
+import { AuditModule } from './modules/audit/audit.module';
 
 @Module({
-  imports: [ConfigModule, HealthModule, AuthModule, OrgModule],
+  imports: [ConfigModule, HealthModule, AuthModule, OrgModule, AuditModule],
   controllers: [AppController, LocalAuthController],
   providers: [AppService, DependencyHealthService],
 })
