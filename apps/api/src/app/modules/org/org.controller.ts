@@ -18,17 +18,29 @@ import type {
   OrgSectorView,
 } from '@heimdall/contracts';
 import { OrgError, OrgService } from './org.service';
+import { AuditService } from '../audit/audit.service';
 
 @Controller('org')
 export class OrgController {
-  constructor(private readonly orgService: OrgService) {}
+  constructor(
+    private readonly orgService: OrgService,
+    private readonly auditService: AuditService,
+  ) {}
 
   // --- Clients ---
 
   @Post('clients')
   createClient(@Body() body: CreateOrgClientInput): OrgClientView {
     try {
-      return this.orgService.createClient(body, new Date());
+      const result = this.orgService.createClient(body, new Date());
+      this.auditService.record({
+        actorUserId: 'system',
+        action: 'create_client',
+        resourceType: 'client',
+        resourceId: result.id,
+        result: 'success',
+      });
+      return result;
     } catch (e) {
       if (e instanceof OrgError && e.code === 'INVALID_NAME') {
         throw new BadRequestException(e.message);
@@ -45,7 +57,15 @@ export class OrgController {
   @Patch('clients/:id/archive')
   archiveClient(@Param('id') id: string): OrgClientView {
     try {
-      return this.orgService.archiveClient(id, new Date());
+      const result = this.orgService.archiveClient(id, new Date());
+      this.auditService.record({
+        actorUserId: 'system',
+        action: 'archive_client',
+        resourceType: 'client',
+        resourceId: id,
+        result: 'success',
+      });
+      return result;
     } catch (e) {
       if (e instanceof OrgError && e.code === 'CLIENT_NOT_FOUND') {
         throw new NotFoundException(e.message);
@@ -59,7 +79,15 @@ export class OrgController {
   @Post('sectors')
   createSector(@Body() body: CreateOrgSectorInput): OrgSectorView {
     try {
-      return this.orgService.createSector(body, new Date());
+      const result = this.orgService.createSector(body, new Date());
+      this.auditService.record({
+        actorUserId: 'system',
+        action: 'create_sector',
+        resourceType: 'sector',
+        resourceId: result.id,
+        result: 'success',
+      });
+      return result;
     } catch (e) {
       if (e instanceof OrgError) {
         if (e.code === 'INVALID_NAME') throw new BadRequestException(e.message);
@@ -84,7 +112,15 @@ export class OrgController {
   @Patch('sectors/:id/archive')
   archiveSector(@Param('id') id: string): OrgSectorView {
     try {
-      return this.orgService.archiveSector(id, new Date());
+      const result = this.orgService.archiveSector(id, new Date());
+      this.auditService.record({
+        actorUserId: 'system',
+        action: 'archive_sector',
+        resourceType: 'sector',
+        resourceId: id,
+        result: 'success',
+      });
+      return result;
     } catch (e) {
       if (e instanceof OrgError && e.code === 'SECTOR_NOT_FOUND') {
         throw new NotFoundException(e.message);
@@ -98,7 +134,15 @@ export class OrgController {
   @Post('projects')
   createProject(@Body() body: CreateOrgProjectInput): OrgProjectView {
     try {
-      return this.orgService.createProject(body, new Date());
+      const result = this.orgService.createProject(body, new Date());
+      this.auditService.record({
+        actorUserId: 'system',
+        action: 'create_project',
+        resourceType: 'project',
+        resourceId: result.id,
+        result: 'success',
+      });
+      return result;
     } catch (e) {
       if (e instanceof OrgError) {
         if (e.code === 'INVALID_NAME') throw new BadRequestException(e.message);
@@ -127,7 +171,15 @@ export class OrgController {
   @Patch('projects/:id/archive')
   archiveProject(@Param('id') id: string): OrgProjectView {
     try {
-      return this.orgService.archiveProject(id, new Date());
+      const result = this.orgService.archiveProject(id, new Date());
+      this.auditService.record({
+        actorUserId: 'system',
+        action: 'archive_project',
+        resourceType: 'project',
+        resourceId: id,
+        result: 'success',
+      });
+      return result;
     } catch (e) {
       if (e instanceof OrgError && e.code === 'PROJECT_NOT_FOUND') {
         throw new NotFoundException(e.message);

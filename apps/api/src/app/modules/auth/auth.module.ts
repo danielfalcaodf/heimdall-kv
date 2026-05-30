@@ -5,8 +5,12 @@ import { UserRepository } from './repositories/user.repository';
 import { InvitationRepository } from './repositories/invitation.repository';
 import { SessionRepository } from './repositories/session.repository';
 import { LocalAuthService } from './local-auth.service';
+import { AuthController } from './auth.controller';
+import { AuditModule } from '../audit/audit.module';
 
 @Module({
+  imports: [AuditModule],
+  controllers: [AuthController],
   providers: [
     PasswordService,
     TokenService,
