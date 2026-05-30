@@ -110,3 +110,33 @@ model OrgProject {
   @@map("projects")
   @@schema("org")
 }
+
+model OrgUserProfile {
+  id          String    @id @default(uuid()) @db.Uuid
+  userId      String    @unique @map("user_id") @db.Uuid
+  role        String    @default("viewer")
+  status      String    @default("active")
+  createdAt   DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  suspendedAt DateTime? @map("suspended_at") @db.Timestamptz(6)
+  removedAt   DateTime? @map("removed_at") @db.Timestamptz(6)
+
+  @@map("user_profiles")
+  @@schema("org")
+}
+
+model OrgUserBinding {
+  id             String     @id @default(uuid()) @db.Uuid
+  userId         String     @map("user_id") @db.Uuid
+  projectId      String?    @map("project_id") @db.Uuid
+  sectorId       String?    @map("sector_id") @db.Uuid
+  clientId       String?    @map("client_id") @db.Uuid
+  role           String     @default("viewer")
+  hasVaultAccess Boolean    @default(false) @map("has_vault_access")
+  createdAt      DateTime   @default(now()) @map("created_at") @db.Timestamptz(6)
+  revokedAt      DateTime?  @map("revoked_at") @db.Timestamptz(6)
+
+  @@index([userId])
+  @@index([projectId])
+  @@map("user_bindings")
+  @@schema("org")
+}

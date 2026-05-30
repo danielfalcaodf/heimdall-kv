@@ -161,11 +161,55 @@ export interface OrgAuditContext {
     | 'org_sector_created'
     | 'org_sector_archived'
     | 'org_project_created'
-    | 'org_project_archived';
+    | 'org_project_archived'
+    | 'org_user_profile_created'
+    | 'org_user_profile_suspended'
+    | 'org_user_profile_reactivated'
+    | 'org_user_binding_created'
+    | 'org_user_binding_revoked';
   result: 'success' | 'denied';
   resourceId: string;
   actorUserId?: string;
   occurredAt: string;
+}
+
+export type OrgUserProfileStatus = 'active' | 'suspended' | 'removed';
+
+export type OrgUserRole = 'viewer' | 'editor' | 'admin';
+
+export interface OrgUserProfileView {
+  id: string;
+  userId: string;
+  role: OrgUserRole;
+  status: OrgUserProfileStatus;
+  createdAt: string;
+  suspendedAt?: string;
+}
+
+export interface OrgUserBindingView {
+  id: string;
+  userId: string;
+  projectId?: string;
+  sectorId?: string;
+  clientId?: string;
+  role: OrgUserRole;
+  hasVaultAccess: boolean;
+  createdAt: string;
+  revokedAt?: string;
+}
+
+export interface CreateOrgUserProfileInput {
+  userId: string;
+  role: OrgUserRole;
+}
+
+export interface CreateOrgUserBindingInput {
+  userId: string;
+  role: OrgUserRole;
+  projectId?: string;
+  sectorId?: string;
+  clientId?: string;
+  hasVaultAccess?: boolean;
 }
 
 // --- ActiveScope / Bootstrap ---
