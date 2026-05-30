@@ -35,20 +35,20 @@ export async function processSanityJob(
 
 export function createQueueConnection(config: RuntimeConfig) {
   return {
-    host: config.redisHost,
-    port: config.redisPort,
+    host: config.redis.host,
+    port: config.redis.port,
   };
 }
 
 export function createSanityQueue(config: RuntimeConfig) {
-  return new Queue<SanityJobPayload>(config.healthQueueName, {
+  return new Queue<SanityJobPayload>(config.redis.queueName, {
     connection: createQueueConnection(config),
   });
 }
 
 export function createSanityWorker(config: RuntimeConfig) {
   return new Worker<SanityJobPayload, SanityJobResult>(
-    config.healthQueueName,
+    config.redis.queueName,
     (job) => processSanityJob(job),
     {
       connection: createQueueConnection(config),

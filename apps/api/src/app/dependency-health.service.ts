@@ -47,7 +47,7 @@ export class DependencyHealthService implements OnModuleDestroy {
     this.prisma = new PrismaClient({
       datasources: {
         db: {
-          url: config.databaseUrl,
+          url: config.db.url,
         },
       },
     });
@@ -146,7 +146,7 @@ export class DependencyHealthService implements OnModuleDestroy {
   }
 
   private async checkStorage(checkedAt: string): Promise<HealthDependency> {
-    const storage = new LocalPrivateStorageAdapter(this.config.storagePrivateRoot);
+    const storage = new LocalPrivateStorageAdapter(this.config.storage.privateRoot);
 
     try {
       await timeout(storage.healthCheck(), HEALTH_TIMEOUT_MS);

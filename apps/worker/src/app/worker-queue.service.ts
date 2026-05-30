@@ -13,7 +13,7 @@ export class WorkerQueueService {
   constructor(@Inject(RUNTIME_CONFIG) private readonly config: RuntimeConfig) {}
 
   get queueName(): string {
-    return this.config.healthQueueName;
+    return this.config.redis.queueName;
   }
 
   async processSyntheticJob(now = new Date()): Promise<SanityJobResult> {

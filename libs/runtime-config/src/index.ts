@@ -1,15 +1,43 @@
 export type RuntimeTarget = 'api' | 'worker';
 
+// ─── Domain sub-interfaces (ISP) ──────────────────────────────────────────────
+
+export interface ServerConfig {
+  port: number;
+  nodeEnv: string;
+}
+
+export interface DbConfig {
+  url: string;
+}
+
+export interface RedisConfig {
+  host: string;
+  port: number;
+  queueName: string;
+}
+
+export interface StorageConfig {
+  privateRoot: string;
+}
+
+export interface AuthConfig {
+  jwtSecret: string;
+  jwtExpiresIn: string;
+}
+
+// ─── Composed RuntimeConfig ───────────────────────────────────────────────────
+
 export interface RuntimeConfig {
   target: RuntimeTarget;
-  nodeEnv: string;
-  port: number;
-  databaseUrl: string;
-  redisHost: string;
-  redisPort: number;
-  storagePrivateRoot: string;
-  healthQueueName: string;
+  server: ServerConfig;
+  db: DbConfig;
+  redis: RedisConfig;
+  storage: StorageConfig;
+  auth?: AuthConfig;
 }
+
+// ─── Validation helpers ───────────────────────────────────────────────────────
 
 export class ConfigValidationError extends Error {
   constructor(readonly issues: string[]) {
@@ -39,6 +67,21 @@ function readRequired(env: NodeJS.ProcessEnv, key: RequiredKey): string {
   return value;
 }
 
+function readRequiredSecret(env: NodeJS.ProcessEnv, key: string): string {
+  const value = env[key]?.trim();
+
+  if (!value) {
+    throw new ConfigValidationError([`${key} ausente`]);
+  }
+
+  const normalized = value.toLowerCase();
+  if (placeholderFragments.some((fragment) => normalized.includes(fragment))) {
+    throw new ConfigValidationError([`${key} contem placeholder`]);
+  }
+
+  return value;
+}
+
 function readPort(value: string | undefined, fallback: number, key: string): number {
   if (!value) {
     return fallback;
@@ -52,6 +95,24 @@ function readPort(value: string | undefined, fallback: number, key: string): num
   return parsed;
 }
 
+function collect<T>(
+  fn: () => T,
+  issues: string[],
+): T | undefined {
+  try {
+    return fn();
+  } catch (error) {
+    if (error instanceof ConfigValidationError) {
+      issues.push(...error.issues);
+    } else {
+      throw error;
+    }
+    return undefined;
+  }
+}
+
+// ─── Main validator ───────────────────────────────────────────────────────────
+
 export function validateRuntimeConfig(
   env: NodeJS.ProcessEnv,
   target: RuntimeTarget,
@@ -60,37 +121,26 @@ export function validateRuntimeConfig(
   const values = new Map<RequiredKey, string>();
 
   for (const key of requiredKeys) {
-    try {
-      values.set(key, readRequired(env, key));
-    } catch (error) {
-      if (error instanceof ConfigValidationError) {
-        issues.push(...error.issues);
-      } else {
-        throw error;
-      }
+    const value = collect(() => readRequired(env, key), issues);
+    if (value !== undefined) {
+      values.set(key, value);
     }
   }
 
-  let redisPort = 0;
-  let port = 0;
+  const redisPort = collect(() => readPort(env.REDIS_PORT, 6379, 'REDIS_PORT'), issues) ?? 0;
+  const port = collect(
+    () => readPort(env.PORT, target === 'api' ? 3001 : 3002, 'PORT'),
+    issues,
+  ) ?? 0;
 
-  try {
-    redisPort = readPort(env.REDIS_PORT, 6379, 'REDIS_PORT');
-  } catch (error) {
-    if (error instanceof ConfigValidationError) {
-      issues.push(...error.issues);
-    } else {
-      throw error;
-    }
-  }
-
-  try {
-    port = readPort(env.PORT, target === 'api' ? 3001 : 3002, 'PORT');
-  } catch (error) {
-    if (error instanceof ConfigValidationError) {
-      issues.push(...error.issues);
-    } else {
-      throw error;
+  let auth: AuthConfig | undefined;
+  if (target === 'api') {
+    const jwtSecret = collect(() => readRequiredSecret(env, 'JWT_SECRET'), issues);
+    if (jwtSecret !== undefined) {
+      auth = {
+        jwtSecret,
+        jwtExpiresIn: env.JWT_EXPIRES_IN || '7d',
+      };
     }
   }
 
@@ -100,13 +150,22 @@ export function validateRuntimeConfig(
 
   return {
     target,
-    nodeEnv: env.NODE_ENV || 'development',
-    port,
-    databaseUrl: values.get('DATABASE_URL') as string,
-    redisHost: values.get('REDIS_HOST') as string,
-    redisPort,
-    storagePrivateRoot: values.get('STORAGE_PRIVATE_ROOT') as string,
-    healthQueueName: env.HEALTH_QUEUE_NAME || 'system.health.sanity',
+    server: {
+      port,
+      nodeEnv: env.NODE_ENV || 'development',
+    },
+    db: {
+      url: values.get('DATABASE_URL') as string,
+    },
+    redis: {
+      host: values.get('REDIS_HOST') as string,
+      port: redisPort,
+      queueName: env.HEALTH_QUEUE_NAME || 'system.health.sanity',
+    },
+    storage: {
+      privateRoot: values.get('STORAGE_PRIVATE_ROOT') as string,
+    },
+    auth,
   };
 }
 
