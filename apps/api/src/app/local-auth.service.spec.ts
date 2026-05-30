@@ -1,5 +1,22 @@
 import { LocalAuthError, LocalAuthService } from './local-auth.service';
 
+// Fixtures de senha lidas de process.env (definidas em .env.test ou CI vars).
+// Nunca usar strings literais de senha em código versionado.
+function requireTestEnv(key: string): string {
+  const value = process.env[key];
+  if (!value) {
+    throw new Error(
+      `Variável de ambiente "${key}" é obrigatória para os testes. ` +
+        'Copie .env.test.example para .env.test e preencha os valores.',
+    );
+  }
+  return value;
+}
+
+const TEST_PASSWORD = requireTestEnv('TEST_PASSWORD');
+const TEST_PASSWORD_ALT = requireTestEnv('TEST_PASSWORD_ALT');
+const TEST_PASSWORD_WRONG = requireTestEnv('TEST_PASSWORD_WRONG');
+
 describe('LocalAuthService', () => {
   let service: LocalAuthService;
   const baseNow = new Date('2026-05-30T12:00:00.000Z');
@@ -75,7 +92,7 @@ describe('LocalAuthService', () => {
       },
       baseNow,
     );
-    const passphrase = 'SenhaInicial123';
+    const passphrase = TEST_PASSWORD;
 
     const accepted = service.acceptInvitation(
       {
@@ -94,7 +111,8 @@ describe('LocalAuthService', () => {
     expect(service.validateSessionByToken(accepted.sessionToken, baseNow).valid).toBe(true);
     expect(service.getInvitation(created.invitation.id, baseNow).status).toBe('accepted');
     expect(JSON.stringify(accepted)).not.toContain(passphrase);
-    expect(JSON.stringify(accepted.safeAudit)).not.toMatch(/token|password|secret|SenhaInicial/i);
+    expect(JSON.stringify(accepted.safeAudit)).not.toMatch(/token|password|secret/i);
+    expect(JSON.stringify(accepted.safeAudit)).not.toContain(passphrase);
   });
 
   it('rejects reused, expired and invalid invitation acceptance with generic safe errors', () => {
@@ -102,7 +120,7 @@ describe('LocalAuthService', () => {
     service.acceptInvitation(
       {
         inviteToken: reusable.inviteToken,
-        password: 'SenhaInicial123',
+        password: TEST_PASSWORD,
       },
       baseNow,
     );
@@ -111,7 +129,7 @@ describe('LocalAuthService', () => {
       service.acceptInvitation(
         {
           inviteToken: reusable.inviteToken,
-          password: 'OutraSenha123',
+          password: TEST_PASSWORD_ALT,
         },
         baseNow,
       ),
@@ -128,7 +146,7 @@ describe('LocalAuthService', () => {
       service.acceptInvitation(
         {
           inviteToken: expired.inviteToken,
-          password: 'SenhaInicial123',
+          password: TEST_PASSWORD,
         },
         new Date('2026-05-30T12:02:00.000Z'),
       ),
@@ -138,7 +156,7 @@ describe('LocalAuthService', () => {
       service.acceptInvitation(
         {
           inviteToken: 'inv_invalid',
-          password: 'SenhaInicial123',
+          password: TEST_PASSWORD,
         },
         baseNow,
       ),
@@ -165,7 +183,7 @@ describe('LocalAuthService', () => {
     service.acceptInvitation(
       {
         inviteToken: created.inviteToken,
-        password: 'SenhaInicial123',
+        password: TEST_PASSWORD,
       },
       baseNow,
     );
@@ -173,26 +191,27 @@ describe('LocalAuthService', () => {
     const login = service.loginLocal(
       {
         email: 'LOGIN@example.test',
-        password: 'SenhaInicial123',
+        password: TEST_PASSWORD,
       },
       baseNow,
     );
 
     expect(login.user.email).toBe('login@example.test');
     expect(login.session.status).toBe('active');
-    expect(JSON.stringify(login)).not.toContain('SenhaInicial123');
+    expect(JSON.stringify(login)).not.toContain(TEST_PASSWORD);
 
     const wrongPassword = captureAuthError(() =>
-      service.loginLocal({ email: 'login@example.test', password: 'SenhaErrada123' }, baseNow),
+      service.loginLocal({ email: 'login@example.test', password: TEST_PASSWORD_WRONG }, baseNow),
     );
     const unknownEmail = captureAuthError(() =>
-      service.loginLocal({ email: 'missing@example.test', password: 'SenhaErrada123' }, baseNow),
+      service.loginLocal({ email: 'missing@example.test', password: TEST_PASSWORD_WRONG }, baseNow),
     );
 
     expect(wrongPassword.code).toBe('LOGIN_DENIED');
     expect(unknownEmail.code).toBe('LOGIN_DENIED');
     expect(wrongPassword.message).toBe(unknownEmail.message);
-    expect(JSON.stringify(wrongPassword.safeAudit)).not.toMatch(/SenhaErrada|password|secret/i);
+    expect(JSON.stringify(wrongPassword.safeAudit)).not.toContain(TEST_PASSWORD_WRONG);
+    expect(JSON.stringify(wrongPassword.safeAudit)).not.toMatch(/password|secret/i);
   });
 
   it('creates, validates and revokes local sessions for active users', () => {

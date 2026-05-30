@@ -7,4 +7,5 @@ export default {
   },
   moduleFileExtensions: ['ts', 'js', 'html'],
   coverageDirectory: '../../coverage/apps/api',
+  setupFiles: ['<rootDir>/../../jest.setup.env.js'],
 };

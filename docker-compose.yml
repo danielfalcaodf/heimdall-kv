@@ -9,13 +9,13 @@ services:
     ports:
       - "5432:5432"
     environment:
-      POSTGRES_USER: heimdall_user
-      POSTGRES_PASSWORD: TROQUE_AQUI
-      POSTGRES_DB: heimdall_kv
+      POSTGRES_USER: ${POSTGRES_USER:-heimdall_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB:-heimdall_kv}
     volumes:
       - pg_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U heimdall_user -d heimdall_kv"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-heimdall_user} -d ${POSTGRES_DB:-heimdall_kv}"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -43,8 +43,8 @@ services:
       - "9001:9001"
     command: server /data --console-address ":9001"
     environment:
-      MINIO_ROOT_USER: minioadmin
-      MINIO_ROOT_PASSWORD: TROQUE_AQUI
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-minioadmin}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
     volumes:
       - minio_data:/data
     healthcheck:
