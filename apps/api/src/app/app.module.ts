@@ -3,21 +3,13 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { DependencyHealthService } from './dependency-health.service';
 import { LocalAuthController } from './local-auth.controller';
-import { LocalAuthService } from './local-auth.service';
-import { RUNTIME_CONFIG } from './runtime-config.provider';
-import { validateRuntimeConfig } from '@heimdall/runtime-config';
+import { ConfigModule } from './modules/config/config.module';
+import { HealthModule } from './modules/health/health.module';
+import { AuthModule } from './modules/auth/auth.module';
 
 @Module({
-  imports: [],
+  imports: [ConfigModule, HealthModule, AuthModule],
   controllers: [AppController, LocalAuthController],
-  providers: [
-    AppService,
-    DependencyHealthService,
-    LocalAuthService,
-    {
-      provide: RUNTIME_CONFIG,
-      useFactory: () => validateRuntimeConfig(process.env, 'api'),
-    },
-  ],
+  providers: [AppService, DependencyHealthService],
 })
 export class AppModule {}
