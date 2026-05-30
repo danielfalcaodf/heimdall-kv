@@ -11,6 +11,9 @@
 ### Autenticação
 
 - Login local com e-mail e senha.
+- Convites administrativos com expiração e invalidação.
+- Sessão local com expiração e encerramento.
+- Tokens persistidos apenas em hash.
 - Controle de acesso por projeto.
 
 ### Vault

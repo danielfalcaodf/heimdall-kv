@@ -27,6 +27,7 @@ test-results/
 # Dumps, backups e dados sensíveis
 *.dump
 *.sql
+!prisma/migrations/**/*.sql
 *.sqlite
 *.db
 *.bak

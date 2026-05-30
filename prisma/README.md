@@ -14,6 +14,18 @@ A V1 usa schemas de dominio, nao `tenant_id` funcional espalhado nas tabelas:
 - `audit`
 - `admin`
 
+## Tabelas implementadas
+
+### `auth`
+
+ST-031 cria a base de autenticacao local:
+
+- `auth.users`: usuarios internos, papel inicial e status operacional.
+- `auth.invitations`: convites administrativos com hash do token, expiracao, aceite e invalidacao.
+- `auth.sessions`: sessoes locais com hash do token, expiracao e revogacao.
+
+Tokens e senhas nao devem ser persistidos em texto claro. As migrations usam apenas estrutura e constraints, sem dados reais.
+
 Comandos:
 
 - `pnpm prisma:validate`
