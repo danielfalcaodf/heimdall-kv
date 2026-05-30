@@ -171,6 +171,28 @@ pnpm db:migrate
 > ⚠️ Copie os arquivos `.env.example` para `.env` (ou `.env.local` no web) antes de executar.  
 > **Nunca versionar arquivos `.env` com dados reais.**
 
+## Arquitetura
+
+O backend (`apps/api`) segue arquitetura modular NestJS com princípios SOLID:
+
+```
+AppModule
+├── ConfigModule     → token RUNTIME_CONFIG via DIP
+├── HealthModule     → IHealthChecker Strategy (OCP)
+│   ├── DatabaseChecker, RedisChecker, WorkerChecker
+│   ├── StorageChecker, JobsChecker
+│   └── HealthService (orquestrador)
+└── AuthModule       → SRP por classe
+    ├── PasswordService, TokenService
+    ├── UserRepository, InvitationRepository, SessionRepository
+    └── LocalAuthService (thin orchestrator)
+```
+
+`RuntimeConfig` é dividida em sub-interfaces por domínio (ISP):
+`ServerConfig`, `DbConfig`, `RedisConfig`, `StorageConfig`, `AuthConfig`
+
+Ver [`docs/02-arquitetura/MODULOS-NESTJS.md`](../knowledge-platform/docs/02-arquitetura/MODULOS-NESTJS.md) e [ADR-011](../knowledge-platform/docs/09-decisoes-adr/ADR-011-arquitetura-modular-solid.md).
+
 ## Bootstrap operacional
 
 - Web: `/app`, `/app/sem-acesso`, `/admin/status`
