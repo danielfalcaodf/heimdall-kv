@@ -12,7 +12,7 @@
         "{workspaceRoot}/coverage/{e2eProjectRoot}"
       ],
       "options": {
-        "jestConfig": "apps/worker-e2e/jest.config.cts",
+        "jestConfig": "apps/worker-e2e/jest.config.ts",
         "passWithNoTests": true
       },
       "dependsOn": [
